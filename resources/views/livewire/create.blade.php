@@ -13,6 +13,13 @@
         @error('salary') <span class="text-danger">{{ $message }}</span>@enderror
 
     </div>
-		<button wire:click.prevent="store()" class="btn btn-success">Save</button>
+	<div class="form-group">
+			<label for="exampleFormControlInput3">Salary:</label>
+			<input type="file" class="form-control" id="exampleFormControlInput3" placeholder="Upload file" wire:model="file">
+
+        @error('file') <span class="text-danger">{{ $message }}</span>@enderror
+
+    </div>
+		<button wire:click.prevent="store()" class="btn btn-success">Save</button></br>
 	</form>
 	

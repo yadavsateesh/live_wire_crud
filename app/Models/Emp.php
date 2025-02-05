@@ -11,7 +11,13 @@ class Emp extends Model
     
 	    protected $fillable = [
 
-        'name', 'salary'
+        'name', 
+		'salary',
+		'file',
+		'age',
+		'gender',
+		'hobbyes',
+		'address'
 
     ];
 }

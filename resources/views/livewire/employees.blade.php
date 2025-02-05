@@ -20,31 +20,36 @@
 
     @endif  
 
-    <table class="table table-bordered mt-5"></br>
-			<input type="text" wire:model="filterValue" placeholder="Enter filter value"/>
-			<!-- Filter Button -->
-			<button wire:click="filter">Filter</button>
-			<thead>
-				<tr>
-					<th>No.</th>
-					<th>name</th>
-					<th>salary</th>
-					<th width="150px">Action</th>
-				</tr>
-			</thead>
-			<tbody>
+    <table class="table table-bordered mt-5"/>
+		</br><input type="text" wire:model.debounce.500ms="filterValue" placeholder="Enter filter value"/>
+		<!-- Filter Button -->
+		<button wire:click="filter">Filter</button>
+		<thead>
+			<tr>
+				<th>No.</th>
+				<th>name</th>
+				<th>salary</th>
+				<th width="150px">Action</th>
+			</tr>
+		</thead>
+		<tbody>
 		@if($employees->isEmpty())
                     <tr>
-					<td colspan="4" class="text-center">No data found.</td>
-				</tr>
+				<td colspan="4" class="text-center">No data found.</td>
+			</tr>
 					@else
 
             @foreach($employees as $data)
 
             <tr>
-					<td>{{ $data->id }}</td>
-					<td>{{ $data->name }}</td>
-					<td>{{ $data->salary }}</td>
+				<td>{{ $data->id }}</td>
+				<td>{{ $data->name }}</td>
+				<td>{{ $data->salary }}</td>
+				<td>
+        @if($data->file)
+					<img src="{{'http://localhost/live_wire_crud/public/'.$data->file}}" width="50">
+          @endif
+    </td>
 					<td>
 						<button wire:click="edit({{ $data->id }})" class="btn btn-primary btn-sm">Edit</button>
 						<button wire:click="delete({{ $data->id }})" class="btn btn-danger btn-sm">Delete</button>

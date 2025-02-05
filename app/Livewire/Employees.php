@@ -3,14 +3,36 @@
 namespace App\Livewire;
 use Livewire\Component;
 use App\Models\Emp;
-
+use Livewire\WithFileUploads;
+use Illuminate\Support\Str;
 class Employees extends Component
 {
-	public $employees, $name, $salary, $employees_id;
+	public  $name, $salary, $employees_id;
 	public $updateMode = false;
-	public $filterValue = '';
-    public $items;
+	public $filterValue = null;
+	use WithFileUploads;
+	public $file;
 	
+	private function resetInputFields(){
+		$this->name = '';
+		$this->salary = '';
+		$this->file = '';
+    }
+	
+	/*  public function mount()
+    {
+        // Initial load of employees without filter
+        $this->employees = Emp::all();
+    }
+	  
+    public function render()
+    {
+		//$this->employees = Emp::all();
+        return view('livewire.employees');
+    } */
+	
+	
+   // public $employees;	
 	// Method to apply filter
    /*  public function filter()
     {
@@ -23,9 +45,10 @@ class Employees extends Component
 			//$this->employees = $this->items;
 			//return view('livewire.employees');
     } */
-	public function filter()
+	
+ 	public function filter()
 	{
-		$this->employees = Emp::query()
+		$employees = Emp::query()
 			->when($this->filterValue, function ($query) {
 				// Filter by name
 				$query->where(function ($query) {
@@ -34,47 +57,57 @@ class Employees extends Component
 				});
 			})
 			->get();
-	}
-
-	 public function mount()
-    {
-        // Initial load of employees without filter
-        $this->employees = Emp::all();
-    }
-	  
-    public function render()
-    {
-		//$this->employees = Emp::all();
-        return view('livewire.employees');
-    }
+	} 
 	
-	 
-	
-	private function resetInputFields(){
-
-	$this->name = '';
-
-	$this->salary = '';
-
-    }
-	
-    public function store()
+	 public function render()
     {
-        $validatedDate = $this->validate([
-
-            'name' => 'required',
-
-            'salary' => 'required',
-
-        ]);
+      /*   $employees = Emp::query()
+            ->when($this->filterValue, function ($query) {
+                $query->where('name', 'like', '%' . $this->filterValue . '%')
+                      ->orWhere('salary', 'like', '%' . $this->filterValue . '%');
+            })
+            ->get(); */
+			
+		// If filterValue is empty, load all employees
 		
-        Emp::create($validatedDate); 
+		if (empty($this->filterValue)) {
+			$employees = Emp::all();
+		} else {
+			$employees = Emp::query()
+				->where('name', 'like', '%' . $this->filterValue . '%')
+				->orWhere('salary', 'like', '%' . $this->filterValue . '%')
+				->get();
+		}
 
-        session()->flash('message', 'Employees Created Successfully.');  
+        return view('livewire.employees', compact('employees'));
+    }	
+	
+	 public function store()
+	{
+		$validatedData = $this->validate([
+			'name' => 'required',
+			'salary' => 'required',
+			'file' => 'required'
+		]);
+		
+		// Generate a unique file name
+        $fileName = time() . '.' . $this->file->getClientOriginalExtension();
 
-        $this->resetInputFields();
+        // Move file to `public/userImage/`
+        $image = $this->file->storeAs('Image', $fileName, 'public_uploads');
+		
+		// Save the data along with the file path
+		Emp::create([
+			'name' => $this->name,
+			'salary' => $this->salary,
+			//'file' => asset('public/'.$image), // Store the file path in the database
+			'file' => $image, // Store the file path in the database
+		]);
 
-    }
+		session()->flash('message', 'Employee Created Successfully.');
+
+		$this->resetInputFields();
+	}
 	
    public function edit($id)
     {
